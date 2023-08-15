@@ -5,15 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
+@Getter @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
@@ -24,17 +28,14 @@ public class User implements UserDetails {
 
     private String password;
 
-    private String auth;
+    private String email;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+   //권한
+    private String role;
 
-        Set<GrantedAuthority> set = new HashSet<>();
+    private String provider;
 
-        set.add(new SimpleGrantedAuthority(auth));
-
-        return set;
-    }
+    private String providerId;
 
     @Override
     public String getPassword() {
@@ -45,7 +46,6 @@ public class User implements UserDetails {
     public String getUsername() {
         return username;
     }
-
 
     @Override
     public boolean isAccountNonExpired() {
@@ -66,4 +66,12 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> collet = new ArrayList<>();
+        collet.add(new SimpleGrantedAuthority("ROLE_"+role));
+        return collet;
+    }
+
 }
