@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,20 +19,25 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     private User user;
     private Map<String, Object> attributes;
 
+    private String JwtToken;
+
     // 일반 시큐리티 로그인시 사용
     public PrincipalDetails(User user) {
         this.user = user;
     }
 
     // OAuth2.0 로그인시 사용
-    public PrincipalDetails(User user, Map<String, Object> attributes) {
+    public PrincipalDetails(User user, Map<String, Object> attributes,String token) {
         this.user = user;
         this.attributes = attributes;
+        this.JwtToken=token;
     }
 
     public User getUser() {
         return user;
     }
+
+    public String getJwtToken(){return JwtToken;}
 
     @Override
     public String getPassword() {

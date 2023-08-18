@@ -1,36 +1,45 @@
 package com.example.roty.security.jwt;
 
+import java.io.IOException;
+import java.util.Date;
+
+
+import com.example.roty.User.domain.User;
 import com.example.roty.security.oauth.PrincipalDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.security.Key;
-import java.util.Date;
+import lombok.RequiredArgsConstructor;
+
+import static com.nimbusds.oauth2.sdk.token.TokenTypeURI.JWT;
+
 
 
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
 
+    private final AuthService authService;
     private final AuthenticationManager authenticationManager;
 
+    // Authentication 객체 만들어서 리턴 => 의존 : AuthenticationManager
+    // 인증 요청시에 실행되는 함수 => /login
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
 
-        System.out.println("JWT 테스트 시작");
+        System.out.println("JwtAuthenticationFilter : 진입");
 
+        // request에 있는 username과 password를 파싱해서 자바 Object로 받기
         ObjectMapper om = new ObjectMapper();
         PrincipalDetails loginRequestDto = null;
         try {
@@ -66,31 +75,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         return authentication;
     }
 
+    // JWT Token 생성해서 response에 담아주기
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        super.successfulAuthentication(request, response, chain, authResult);
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+                                            Authentication authResult) throws IOException, ServletException {
+
+        PrincipalDetails principalDetailis = (PrincipalDetails) authResult.getPrincipal();
+
+        User user = principalDetailis.getUser();
+
+        String token = authService.makeToken(user);
 
 
-        PrincipalDetails principal = (PrincipalDetails) authResult.getPrincipal();
-
-        Key secretKey = new SecretKeySpec("비밀키".getBytes(), SignatureAlgorithm.HS256.getJcaName());
-
-        // JWT 생성
-
-        String compact = Jwts.builder()
-                .claim("memberId", principal.getUser().getUserId())
-                .claim("name", principal.getName())
-//                .claim("age", principal.getAge())
-                .setExpiration(new Date(System.currentTimeMillis() + 120_000))
-                .signWith(secretKey)
-                .compact();
-
-
-        response.addHeader("Authorization","Bearer "+compact);
-
-        System.out.println("jwt 토큰 생성 "+compact);
-
+        response.addHeader("Authorization", "Bearer "+token);
     }
 
 }
-

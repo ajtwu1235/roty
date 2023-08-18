@@ -26,8 +26,6 @@ public class User implements UserDetails {
 
     private String username;
 
-    private String password;
-
     private String email;
 
    //권한
@@ -37,9 +35,13 @@ public class User implements UserDetails {
 
     private String providerId;
 
+    private String ageGroup;
+
+    private String gender;
+
     @Override
     public String getPassword() {
-        return password;
+        return null;
     }
 
     @Override

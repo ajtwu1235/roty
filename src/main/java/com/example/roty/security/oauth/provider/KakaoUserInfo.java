@@ -38,6 +38,6 @@ public class KakaoUserInfo implements Oauth2UserInfo {
 
     @Override
     public String getName() {
-        return attributes.get("id").toString();
+        return attributeProfile.get("nickname").toString();
     }
 }

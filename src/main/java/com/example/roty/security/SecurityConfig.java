@@ -3,47 +3,28 @@ package com.example.roty.security;
 import com.example.roty.User.repository.UserRepository;
 import com.example.roty.User.service.UserService;
 //import com.example.roty.security.jwt.JwtAuthenticationFilter;
+import com.example.roty.security.jwt.AuthService;
 import com.example.roty.security.jwt.JwtAuthenticationFilter;
 import com.example.roty.security.jwt.JwtAuthorizationFilter;
+import com.example.roty.security.jwt.JwtTokenProvider;
+
+import com.example.roty.security.oauth.OAuth2UserSuccessHandler;
 import com.example.roty.security.oauth.Oauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
+
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFilter;
 
-@Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig  {
-
-//    private final UserService userService;
-
     private final Oauth2UserService oauth2UserService;
-
-
-//    private final AuthenticationManager authenticationManager;
-
-
-    @Bean
-    AuthenticationManager authenticationManager() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-//        provider.setUserDetailsService(oauth2UserService);
-//        provider.setO
-//        provider.setPasswordEncoder(passwordEncoder());
-        return new ProviderManager(provider);
-    }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -56,22 +37,24 @@ public class SecurityConfig  {
                 .formLogin(f->f.disable())
                 //기존 http방식 비활성화  -> Bearer 토큰
                 .httpBasic(h->h.disable())
+                .authorizeHttpRequests(r->
+                        {
+                            r.requestMatchers("/*").permitAll();
+                            r.requestMatchers("/user").authenticated();
+                        }
+
+                )
                 .oauth2Login(oauth->
-                oauth.userInfoEndpoint((u)->
-                        u.userService(oauth2UserService))
-                        .loginPage("/"))
+                        {
 
+                            oauth.loginPage("/login2");
+                            oauth.userInfoEndpoint((u)->
+                                    u.userService(oauth2UserService));
 
-//                .addFilter(new JwtAuthenticationFilter(authenticationManager))
-//                .addFilter(new JwtAuthorizationFilter(authenticationManager))
+                            oauth.defaultSuccessUrl("/token");
+                        }
 
-
-//                .authorizeHttpRequests(r ->
-//                        r.requestMatchers("/").hasRole("ROLE_USER")
-//
-//                )
-
-
+                )
                 .build();
     }
 

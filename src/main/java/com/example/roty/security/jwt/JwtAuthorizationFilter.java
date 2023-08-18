@@ -24,17 +24,24 @@ import java.util.Map;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
+
     private UserRepository userRepository;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
         super(authenticationManager);
+        this.userRepository = userRepository;
     }
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
+
+
+        System.out.println("인가 시작");
+
         String header = request.getHeader("Authorization");
+
+        System.out.println("헤더 출력 :"+header);
 
         //토큰 없으면 무효
         if(header == null || !header.startsWith("Bearer ")) {
