@@ -1,5 +1,6 @@
 package com.example.roty.User.service;
 
+import com.example.roty.User.domain.User;
 import com.example.roty.User.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +18,8 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username);
     }
+
+
 
 
 }

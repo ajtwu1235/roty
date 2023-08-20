@@ -14,7 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import java.io.IOException;
@@ -24,10 +23,14 @@ import java.util.Map;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    private UserRepository userRepository;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager) {
+    private String secretKey ="keqoeurpqieurpqemvzlkdfkqerpqieuria45eqkrekqmlriiutuytxkyxrzjtejrcjtrjvtjrb";
+
+    private final UserRepository userRepository;
+
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
         super(authenticationManager);
+        this.userRepository = userRepository;
     }
 
 
@@ -42,7 +45,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-
         System.out.println("header : "+header);
         String token = request.getHeader("Authorization")
                 .replace("Bearer ", "");
@@ -53,7 +55,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 //                .getClaim("username").asString();
 
         Map<String,Object> claim= (Claims) Jwts.parserBuilder()
-                .setSigningKey("비밀키".getBytes())
+                .setSigningKey(secretKey.getBytes())
                 .build()
                 .parse(token)
                 .getBody();
