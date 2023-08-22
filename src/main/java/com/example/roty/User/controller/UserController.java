@@ -2,6 +2,7 @@ package com.example.roty.User.controller;
 
 
 import com.example.roty.User.domain.User;
+import com.example.roty.User.service.UserService;
 import com.example.roty.security.oauth.AuthService;
 import com.example.roty.security.oauth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
@@ -20,21 +21,35 @@ import java.util.Map;
 public class UserController {
 
     private final AuthService authService;
-    @GetMapping
+    private final UserService userService;
+    @GetMapping()
     public String index(){
         return "login";
     }
 
+    @ResponseBody
+    @GetMapping("/test")
+    public String test(){ return "test";}
+
+    @ResponseBody
+    @GetMapping("/test2")
+    public User test2(){ return User.builder().userId(1L)
+            .email("dafdfa@naver.com")
+            .role("MEMBER").build();}
 
     //토큰발급 경로
-    @ResponseBody
     @GetMapping("/token")
     public String getToken(Authentication authentication){
+
+//        if(authentication==null){
+//            return "redirect:/oauth2/authorization/kakao";
+//        }
+
         PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
 
         String token= authService.makeToken(principal.getUser());
 
-        return "Bearer "+token;
+        return "redirect:http://localhost:3000/redirect?token="+token;
     }
 
 

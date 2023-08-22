@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,8 +24,10 @@ import java.util.Map;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
+    @Value("${jwt.secret}")
+    private String secretKey;
 
-    private String secretKey ="keqoeurpqieurpqemvzlkdfkqerpqieuria45eqkrekqmlriiutuytxkyxrzjtejrcjtrjvtjrb";
+//    private String secretKey ="keqoeurpqieurpqemvzlkdfkqerpqieuria45eqkrekqmlriiutuytxkyxrzjtejrcjtrjvtjrb";
 
     private final UserRepository userRepository;
 
