@@ -14,6 +14,9 @@ import java.util.Map;
 @Service
 public class AuthService {
 
+    @Value("${jwt.secret}")
+    private String secretKey;
+
     public String makeToken(User user){
         SecretKeySpec key = getKey();
         String compact = Jwts.builder()
